@@ -42,6 +42,8 @@ class ViewController: UIViewController {
   var fetchRequest: NSFetchRequest<Venue>?
   var venues: [Venue] = []
   
+  var asyncFetchRequest: NSAsynchronousFetchRequest<Venue>?
+  
   // MARK: IB Outlets
   
   @IBOutlet weak var tableView: UITableView!
@@ -50,11 +52,40 @@ class ViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
+    
+    let venueFetchRequest: NSFetchRequest<Venue> = Venue.fetchRequest()
+    fetchRequest = venueFetchRequest
+    
+    asyncFetchRequest = NSAsynchronousFetchRequest<Venue>(fetchRequest: venueFetchRequest) {
+      [unowned self] (result: NSAsynchronousFetchResult) in
+      guard let venues = result.finalResult else {
+        return
+      }
+      self.venues = venues
+      self.tableView.reloadData()
+    }
+
+    do {
+      guard let asyncFetchRequest = asyncFetchRequest else { return }
+      try coreDataStack.managedContext.execute(asyncFetchRequest)
+      
+      // Returns immediately, cancel here if you want
+    } catch let error as NSError {
+      print("Could not fetch \(error), \(error.userInfo)")
+    }
+  }
+  
+  /*
+  // (2) NOTE: Use this implementation to avoid using implementation (1), but don't use this because it's on the main thread...
+  override func viewDidLoad() {
+    super.viewDidLoad()
     fetchRequest = Venue.fetchRequest()
     fetchAndReload()
   }
+  */
   
-  /* NOTE: This implementation will crash if you try to change the fetch request's predicate at runtime.
+  /*
+  // (1) NOTE: This implementation will crash if you try to change the fetch request's predicate at runtime.
    override func viewDidLoad() {
     super.viewDidLoad()
     
@@ -62,7 +93,8 @@ class ViewController: UIViewController {
           let fetchRequest = model.fetchRequestTemplate(forName: "FetchRequest") as? NSFetchRequest<Venue> else { return }
     self.fetchRequest = fetchRequest
     fetchAndReload()
-  }*/
+  }
+  */
 
   // MARK: Navigation
   
