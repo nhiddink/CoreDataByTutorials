@@ -58,6 +58,19 @@ class FilterViewController: UITableViewController {
   var selectedSortDescriptor: NSSortDescriptor?
   var selectedPredicate: NSPredicate?
   
+  lazy var offeringDealPredicate: NSPredicate = {
+    return NSPredicate(format: "%K > 0",
+                       #keyPath(Venue.specialCount))
+  }()
+  lazy var walkingDistancePredicate: NSPredicate = {
+    return NSPredicate(format: "%K < 500",
+                       #keyPath(Venue.location.distance))
+  }()
+  lazy var hasUserTipsPredicate: NSPredicate = {
+    return NSPredicate(format: "%K > 0",
+                       #keyPath(Venue.stats.tipCount))
+  }()
+  
   // MARK: IB Outlets
   
   @IBOutlet weak var firstPriceCategoryLabel: UILabel!
@@ -160,16 +173,24 @@ extension FilterViewController {
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     guard let cell = tableView.cellForRow(at: indexPath) else { return }
     
-    // Price Selection
     switch cell {
-    case cheapVenueCell:
-      selectedPredicate = cheapVenuePredicate
-    case moderateVenueCell:
-      selectedPredicate = moderateVenuePredicate
-    case expensiveVenueCell:
-      selectedPredicate = expensiveVenuePredicate
-    default:
-      break
+      // Price Section
+      case cheapVenueCell:
+        selectedPredicate = cheapVenuePredicate
+      case moderateVenueCell:
+        selectedPredicate = moderateVenuePredicate
+      case expensiveVenueCell:
+        selectedPredicate = expensiveVenuePredicate
+      
+      // Most Popular Section
+      case offeringDealCell:
+        selectedPredicate = offeringDealPredicate
+      case walkingDistanceCell:
+        selectedPredicate = walkingDistancePredicate
+      case userTipsCell:
+        selectedPredicate = hasUserTipsPredicate
+      default:
+        break
     }
     
     cell.accessoryType = .checkmark
