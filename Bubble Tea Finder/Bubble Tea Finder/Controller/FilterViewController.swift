@@ -78,6 +78,8 @@ class FilterViewController: UITableViewController {
     populateVenueCountLabel(predicate: cheapVenuePredicate, label: firstPriceCategoryLabel)
     populateVenueCountLabel(predicate: moderateVenuePredicate, label: secondPriceCategoryLabel)
     populateVenueCountLabel(predicate: expensiveVenuePredicate, label: thirdPriceCategoryLabel)
+    
+    populateDealsCountLabel()
   }
   
   // MARK: Helper Methods
@@ -105,6 +107,30 @@ class FilterViewController: UITableViewController {
       print("Count not fetch \(error), \(error.userInfo)")
      }
      */
+  }
+  
+  func populateDealsCountLabel() {
+    let fetchRequest = NSFetchRequest<NSDictionary>(entityName: "Venue")
+    fetchRequest.resultType = .dictionaryResultType
+    
+    let sumExpressionDescription = NSExpressionDescription()
+    sumExpressionDescription.name = "sumDeals"
+    
+    let specialCountExpression = NSExpression(forKeyPath: #keyPath(Venue.specialCount))
+    sumExpressionDescription.expression = NSExpression(forFunction: "sum:", arguments: [specialCountExpression])
+    
+    sumExpressionDescription.expressionResultType = .integer32AttributeType
+    
+    fetchRequest.propertiesToFetch = [sumExpressionDescription]
+    
+    do {
+      let results = try coreDataStack.managedContext.fetch(fetchRequest)
+      let resultDict = results.first!
+      let numDeals = resultDict["sumDeals"]!
+      numDealsLabel.text = "\(numDeals) total deals"
+    } catch let error as NSError {
+      print("Count not fetch \(error), \(error.userInfo)")
+    }
   }
   
   // MARK: IB Actions
