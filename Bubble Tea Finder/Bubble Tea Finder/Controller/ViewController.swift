@@ -34,6 +34,7 @@ import CoreData
 class ViewController: UIViewController {
 
   // MARK: Properties
+  
   private let filterViewControllerSegueIdentifier = "toFilterViewController"
   fileprivate let venueCellIdentifier = "VenueCell"
 
@@ -42,25 +43,37 @@ class ViewController: UIViewController {
   var venues: [Venue] = []
   
   // MARK: IB Outlets
+  
   @IBOutlet weak var tableView: UITableView!
 
   // MARK: Life Cycle
+  
   override func viewDidLoad() {
+    super.viewDidLoad()
+    fetchRequest = Venue.fetchRequest()
+    fetchAndReload()
+  }
+  
+  /* NOTE: This implementation will crash if you try to change the fetch request's predicate at runtime.
+   override func viewDidLoad() {
     super.viewDidLoad()
     
     guard let model = coreDataStack.managedContext.persistentStoreCoordinator?.managedObjectModel,
           let fetchRequest = model.fetchRequestTemplate(forName: "FetchRequest") as? NSFetchRequest<Venue> else { return }
     self.fetchRequest = fetchRequest
     fetchAndReload()
-  }
+  }*/
 
   // MARK: Navigation
+  
   override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
     guard segue.identifier == filterViewControllerSegueIdentifier,
           let navController = segue.destination as? UINavigationController,
           let filterVC = navController.topViewController as? FilterViewController else { return }
     
     filterVC.coreDataStack = coreDataStack
+    
+    filterVC.delegate = self
   }
   
   // MARK: Helper Methods
@@ -98,5 +111,23 @@ extension ViewController: UITableViewDataSource {
     cell.textLabel?.text = venue.name
     cell.detailTextLabel?.text = venue.priceInfo?.priceCategory
     return cell
+  }
+}
+
+// MARK: ViewController: FilterViewControllerDelegate
+
+extension ViewController: FilterViewControllerDelegate {
+  func filterViewController(filter: FilterViewController,
+                            didSelectPredicate predicate: NSPredicate?,
+                            sortDescriptor: NSSortDescriptor?) {
+    guard let fetchRequest = fetchRequest else { return }
+    fetchRequest.predicate = nil
+    fetchRequest.sortDescriptors = nil
+    fetchRequest.predicate = predicate
+    
+    if let sd = sortDescriptor {
+      fetchRequest.sortDescriptors = [sd]
+    }
+    fetchAndReload()
   }
 }

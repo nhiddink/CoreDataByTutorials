@@ -31,6 +31,12 @@
 import UIKit
 import CoreData
 
+protocol FilterViewControllerDelegate: class {
+  func filterViewController(filter: FilterViewController,
+                            didSelectPredicate predicate: NSPredicate?,
+                            sortDescriptor: NSSortDescriptor?)
+}
+
 class FilterViewController: UITableViewController {
 
   // MARK: Properties
@@ -47,6 +53,10 @@ class FilterViewController: UITableViewController {
     return NSPredicate(format: "%K == %@",
                        #keyPath(Venue.priceInfo.priceCategory), "$$$")
   }()
+  
+  weak var delegate: FilterViewControllerDelegate?
+  var selectedSortDescriptor: NSSortDescriptor?
+  var selectedPredicate: NSPredicate?
   
   // MARK: IB Outlets
   
@@ -136,7 +146,10 @@ class FilterViewController: UITableViewController {
   // MARK: IB Actions
   
   @IBAction func saveButtonTapped(_ sender: UIBarButtonItem) {
-    
+    delegate?.filterViewController(filter: self,
+                                   didSelectPredicate: selectedPredicate,
+                                   sortDescriptor: selectedSortDescriptor)
+    dismiss(animated: true)
   }
   
 }
@@ -145,6 +158,20 @@ class FilterViewController: UITableViewController {
 extension FilterViewController {
 
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
+    guard let cell = tableView.cellForRow(at: indexPath) else { return }
+    
+    // Price Selection
+    switch cell {
+    case cheapVenueCell:
+      selectedPredicate = cheapVenuePredicate
+    case moderateVenueCell:
+      selectedPredicate = moderateVenuePredicate
+    case expensiveVenueCell:
+      selectedPredicate = expensiveVenuePredicate
+    default:
+      break
+    }
+    
+    cell.accessoryType = .checkmark
   }
 }
