@@ -191,6 +191,7 @@
 				TargetAttributes = {
 					FEE9F2561D73B9520042F5B5 = {
 						CreatedOnToolsVersion = 8.0;
+						DevelopmentTeam = 7G4UHWJ29G;
 						LastSwiftMigration = 0900;
 						ProvisioningStyle = Automatic;
 					};
@@ -377,10 +378,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 7G4UHWJ29G;
 				INFOPLIST_FILE = "Bubble Tea Finder/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.razeware.Bubble-Tea-Finder";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Neil-Hiddink-Bubble-Tea-Finder";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;
@@ -391,10 +393,11 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				DEVELOPMENT_TEAM = 7G4UHWJ29G;
 				INFOPLIST_FILE = "Bubble Tea Finder/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.razeware.Bubble-Tea-Finder";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.Neil-Hiddink-Bubble-Tea-Finder";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
 				SWIFT_VERSION = 4.0;
