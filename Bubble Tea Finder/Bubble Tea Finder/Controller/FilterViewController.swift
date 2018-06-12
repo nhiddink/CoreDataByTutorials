@@ -29,46 +29,93 @@
  */
 
 import UIKit
+import CoreData
 
 class FilterViewController: UITableViewController {
 
+  // MARK: Properties
+  
+  var coreDataStack: CoreDataStack!
+  lazy var cheapVenuePredicate: NSPredicate = {
+    return NSPredicate(format: "%K == %@", #keyPath(Venue.priceInfo.priceCategory), "$")
+  }()
+  lazy var moderateVenuePredicate: NSPredicate = {
+    return NSPredicate(format: "%K == %@",
+                       #keyPath(Venue.priceInfo.priceCategory), "$$")
+  }()
+  lazy var expensiveVenuePredicate: NSPredicate = {
+    return NSPredicate(format: "%K == %@",
+                       #keyPath(Venue.priceInfo.priceCategory), "$$$")
+  }()
+  
+  // MARK: IB Outlets
+  
   @IBOutlet weak var firstPriceCategoryLabel: UILabel!
   @IBOutlet weak var secondPriceCategoryLabel: UILabel!
   @IBOutlet weak var thirdPriceCategoryLabel: UILabel!
   @IBOutlet weak var numDealsLabel: UILabel!
 
-  // MARK: - Price section
+  // Price Section
   @IBOutlet weak var cheapVenueCell: UITableViewCell!
   @IBOutlet weak var moderateVenueCell: UITableViewCell!
   @IBOutlet weak var expensiveVenueCell: UITableViewCell!
 
-  // MARK: - Most popular section
+  // Most Popular Section
   @IBOutlet weak var offeringDealCell: UITableViewCell!
   @IBOutlet weak var walkingDistanceCell: UITableViewCell!
   @IBOutlet weak var userTipsCell: UITableViewCell!
   
-  // MARK: - Sort section
+  // Sort Section
   @IBOutlet weak var nameAZSortCell: UITableViewCell!
   @IBOutlet weak var nameZASortCell: UITableViewCell!
   @IBOutlet weak var distanceSortCell: UITableViewCell!
   @IBOutlet weak var priceSortCell: UITableViewCell!
 
-  // MARK: - View Life Cycle
+  // MARK: View Life Cycle
   override func viewDidLoad() {
     super.viewDidLoad()
-
+    
+    populateVenueCountLabel(predicate: cheapVenuePredicate, label: firstPriceCategoryLabel)
+    populateVenueCountLabel(predicate: moderateVenuePredicate, label: secondPriceCategoryLabel)
+    populateVenueCountLabel(predicate: expensiveVenuePredicate, label: thirdPriceCategoryLabel)
   }
-}
-
-// MARK: - IBActions
-extension FilterViewController {
-
+  
+  // MARK: Helper Methods
+  
+  func populateVenueCountLabel(predicate: NSPredicate, label: UILabel) {
+    let fetchRequest = NSFetchRequest<NSNumber>(entityName: "Venue")
+    fetchRequest.resultType = .countResultType
+    fetchRequest.predicate = predicate
+    
+    do {
+      let countResult = try coreDataStack.managedContext.fetch(fetchRequest)
+      let count = countResult.first!.intValue
+      label.text = "\(count) bubble tea places"
+    } catch let error as NSError {
+      print("Count not fetch \(error), \(error.userInfo)")
+    }
+    
+     /* Alternative solution to this method:
+     let fetchRequest: NSFetchRequest<Venue> = Venue.fetchRequest()
+     fetchRequest.predicate = expensiveVenuePredicate
+     do {
+      let count = try coreDataStack.managedContext.count(for: fetchRequest)
+      thirdPriceCategoryLabel.text = "\(count) bubble tea places"
+     } catch let error as NSError {
+      print("Count not fetch \(error), \(error.userInfo)")
+     }
+     */
+  }
+  
+  // MARK: IB Actions
+  
   @IBAction func saveButtonTapped(_ sender: UIBarButtonItem) {
-
+    
   }
+  
 }
 
-// MARK - UITableViewDelegate
+// MARK: UITableView Delegate
 extension FilterViewController {
 
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
